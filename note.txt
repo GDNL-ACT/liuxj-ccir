@@ -1,0 +1,6 @@
+qwen3-embedding 4B,8B [0shot_, rewrite_, rewrite+queryExpansion];
+Qwen3-chat 32B,8B [0shot, gold_]
+
+rewrite [query, query+answer]
+gold generate 只有法条名称 or 法条名称+内容
+Qwen3 enable_thinking ?
