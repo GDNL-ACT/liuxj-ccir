@@ -52,7 +52,7 @@ def main():
             eval_type="generation",
             metrics=["bert-score","keyword_accuracy"],
             data_path=args.raw_conversation_path,
-            response_file=args.generator_output_file
+            response_file=generator_output_file
         )
         print("生成评估结果:", gen_metrics)
 

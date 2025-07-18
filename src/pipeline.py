@@ -56,7 +56,6 @@ class GeneratorPipeline:
         return llm_data
     
 class ProcessorPipeline:
-
     def __init__(self, model_type=None, config=None):
         if config:
             if isinstance(config, dict):
@@ -73,7 +72,9 @@ class ProcessorPipeline:
                      max_retries: int = 5,
                      max_parallel: int = 4,
                      batch_size: int = 32):
-        
+        if os.path.exists(output_path):
+            logging.info(f"Query文件已存在，跳过处理：{output_path}")
+            return
         if process_type.startswith("rewrite_question"):
             processor = create_processor(
                 "rewrite_question",
