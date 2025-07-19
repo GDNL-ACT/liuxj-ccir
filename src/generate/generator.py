@@ -573,7 +573,8 @@ class LocalGenerator(BaseGenerator):
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(
                 self.config["model_path"],
-                trust_remote_code=True
+                trust_remote_code=True,
+                padding_side="left"
             )
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.config["model_path"],
@@ -669,7 +670,8 @@ class LocalGenerator(BaseGenerator):
                     input_ids=model_inputs["input_ids"],
                     attention_mask=model_inputs["attention_mask"],
                     do_sample=False,
-                    max_new_tokens=32768
+                    eos_token_id=self.tokenizer.eos_token_id,
+                    max_new_tokens=2048
             )
             response = self.tokenizer.decode(
                 outputs[0][len(model_inputs["input_ids"][0]):], 
@@ -685,35 +687,104 @@ class LocalGenerator(BaseGenerator):
             self.logger.error(f"Generate Error ID {item_id}: {str(e)}")
             return {"id": item_id, "question": question, "response": ""}
 
+    # def _batch_call(self, messages_list, id_list, questions_list, articles_list, system_prompts):
+        # result_dict = {}
+        # with ThreadPoolExecutor(max_workers=self.max_parallel) as executor:
+        #     futures = []
+            
+        #     with tqdm(total=len(messages_list), desc="Local Model Generate") as pbar:
+        #         for messages, item_id, question, articles, system_prompt in zip(
+        #             messages_list, id_list, questions_list, articles_list, system_prompts
+        #         ):
+        #             future = executor.submit(
+        #                 self._call_api, 
+        #                 messages, 
+        #                 item_id, 
+        #                 question, 
+        #                 articles, 
+        #                 system_prompt
+        #             )
+        #             future.add_done_callback(lambda _: pbar.update(1))
+        #             futures.append(future)
+
+        #             if len(futures) >= self.batch_size:
+        #                 self._process_batch(futures, result_dict)
+        #                 futures.clear()
+            
+        #         if futures:
+        #             self._process_batch(futures, result_dict)
+        
+        # return [result_dict[id] for id in sorted(id_list, key=lambda x: int(x.split("_")[0]))]
+
     def _batch_call(self, messages_list, id_list, questions_list, articles_list, system_prompts):
         result_dict = {}
-        with ThreadPoolExecutor(max_workers=self.max_parallel) as executor:
-            futures = []
-            
-            with tqdm(total=len(messages_list), desc="Local Model Generate") as pbar:
-                for messages, item_id, question, articles, system_prompt in zip(
-                    messages_list, id_list, questions_list, articles_list, system_prompts
-                ):
-                    future = executor.submit(
-                        self._call_api, 
-                        messages, 
-                        item_id, 
-                        question, 
-                        articles, 
-                        system_prompt
+        total = len(messages_list)
+        batch_size = self.batch_size
+        with tqdm(total=total, desc="Local Model Generate") as pbar:
+            for i in range(0, total, batch_size):
+                batch_items = [
+                    (
+                        messages_list[j], id_list[j], questions_list[j], system_prompts[j]
                     )
-                    future.add_done_callback(lambda _: pbar.update(1))
-                    futures.append(future)
+                    for j in range(i, min(i + batch_size, total))
+                ]
+                batch_results = self._call_batch_api(batch_items)
+                for res in batch_results:
+                    result_dict[res["id"]] = res
+                    self._save_results({res["id"]: res})
+                pbar.update(len(batch_results))
 
-                    if len(futures) >= self.batch_size:
-                        self._process_batch(futures, result_dict)
-                        futures.clear()
-            
-                if futures:
-                    self._process_batch(futures, result_dict)
-        
-        return [result_dict[id] for id in sorted(id_list, key=lambda x: int(x.split("_")[0]))]
+        # 按对话ID排序并返回列表
+        ordered = [result_dict[i] for i in sorted(id_list, key=lambda x: int(x.split("_")[0]))]
+        return ordered
+    
+    def _call_batch_api(self, batch_items):
+        # batch_items: list of tuples (messages, item_id, question, system_prompt)
+        full_prompts = []
+        ids = []
+        qs = []
+        for msgs, item_id, question, sys_p in batch_items:
+            prompt_msgs = []
+            if sys_p:
+                prompt_msgs.append({"role": "system", "content": sys_p})
+            prompt_msgs.extend(msgs)
+            inputs = self.tokenizer.apply_chat_template(
+                prompt_msgs,
+                tokenize=False,
+                add_generation_prompt=True,
+                enable_thinking=False
+            )
+            full_prompts.append(inputs)
+            ids.append(item_id)
+            qs.append(question)
 
+        # Tokenize batch
+        batch_encoding = self.tokenizer(
+            full_prompts,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            return_attention_mask=True
+        )
+        batch_encoding = {k: v.to(self.model.device) for k, v in batch_encoding.items()}
+
+        # Generate batch
+        with torch.no_grad():
+            outputs = self.model.generate(
+                input_ids=batch_encoding["input_ids"],
+                attention_mask=batch_encoding["attention_mask"],
+                do_sample=False,
+                eos_token_id=self.tokenizer.eos_token_id,
+                max_new_tokens=1024
+            )
+
+        results = []
+        for i, item_id in enumerate(ids):
+            generated = outputs[i][len(batch_encoding["input_ids"][i]):]
+            resp = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
+            results.append({"id": item_id, "question": qs[i], "response": resp})
+        return results
+    
     def _process_batch(self, futures, result_dict):
         current_batch = []
         for future in as_completed(futures):
