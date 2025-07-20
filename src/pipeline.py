@@ -35,7 +35,8 @@ class GeneratorPipeline:
                     ):
         processed_data = self.data_processor.process_conversation_turns(raw_data_path)
         retrieval_data = self._load_retrieval_data(retrieval_data_path)
-
+        processed_data = processed_data['turn_5']
+        
         generator = create_generator(
             model_type=self.model_type,
             config=self.config,
