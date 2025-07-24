@@ -27,7 +27,7 @@ class Processor:
                 "1. **保留原问题的法律核心语义**，可以在不改变原意的前提下，适当使用常见或通用的法律术语，以增强表达的专业性；"
                 "2. 不得引入对话中未出现的具体法律概念、事实推测或虚构信息；\n"
                 "3. **清除所有指代词或模糊表述**（如“这个问题”“上述”“他”等），并结合历史对话**补全必要的背景信息**；\n"
-                "4. 若原问题信息不足，应从历史问题中提取明确信息补全，不得随意扩展；\n"
+                "4. 若原问题信息不足，应从历史中提取明确信息补全，不得随意扩展；\n"
                 "5. 改写后的问题必须是**完整、清晰、正式的陈述式问句**，具备良好的独立可读性和法律检索价值；\n"
                 "6. **仅输出改写后的问题文本**，不附加任何解释、说明或前后缀内容。**改写后的问题应尽量简洁、清晰**，尽量在200字以内。"
             )
@@ -126,9 +126,8 @@ class Processor:
 
             for turn_idx, turn in enumerate(conversation):
                 user = turn.get("user", "")
-                assistant = turn.get("assistant", "")
                 history_for_prompt = [
-                    {"question": h["user"]}
+                    {"question": h["user"] , "response": h["assistant"]}
                     for h in conversation[:turn_idx]
                 ]
 
@@ -139,7 +138,7 @@ class Processor:
                 )
                 messages_list.append(messages)
                 message_to_ref.append((sample_idx, turn_idx))
-
+                
         for i in tqdm(range(0, len(messages_list), self.batch_size), desc="Rewriting queries for training"):
             batch_messages = messages_list[i:i + self.batch_size]
             rewritten_outputs = self._generate_with_prompt_builder(batch_messages)
@@ -206,8 +205,8 @@ class Processor:
 
 
 if __name__ == "__main__":
-    processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-4B")
-    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/tmp/dataset1_test.json", output_path="output/rewritten_queries.json")
+    processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",batch_size=8)
+    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/dataset1.json", output_path="output/rewritten_queries.json")
 
     # processor = Processor("prefix_question")
     # processor.run("../data/qut.json", "output/tmp.jsonl")
