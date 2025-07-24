@@ -111,7 +111,8 @@ class PseudoAnswerGenerator:
 
     def _ensure_model_loaded(self):
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_path, 
+            self.model_path,
+            padding_side='left',  
             trust_remote_code=True 
         )
         self.model = AutoModelForCausalLM.from_pretrained(

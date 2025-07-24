@@ -58,7 +58,8 @@ class Generator:
         self.prompt_builder = prompt_builder
 
         self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_path, 
+                self.model_path,
+                padding_side='left',  
                 trust_remote_code=True
             )
         self.model = AutoModelForCausalLM.from_pretrained(
