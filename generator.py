@@ -58,7 +58,7 @@ class PromptBuilder:
 
         # 当前问题
         if self.mode == 'rewrite':
-            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请将该问题改写为脱离上下文也能理解的法律检索问题。"})
+            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请将该问题改写为可以脱离上下文的**独立提问**"})
         else:
             messages.append({"role": "user", "content": current_question})
         return messages
@@ -66,9 +66,11 @@ class PromptBuilder:
 class Generator:
     def __init__(self,
                  model_path: str,
-                 prompt_builder: PromptBuilder):
+                 prompt_builder: PromptBuilder,
+                 max_articles: int = 3):
         self.model_path = model_path
         self.prompt_builder = prompt_builder
+        self.max_articles = max_articles
 
         self.tokenizer = AutoTokenizer.from_pretrained(
                 self.model_path,
@@ -144,7 +146,7 @@ class Generator:
             for item in items:
                 dialog_id = item["dialog_id"]
                 question = item["question"]
-                recall = item["recall"]
+                recall = item["recall"][:self.max_articles]
                 history = histories[dialog_id]
 
                 # 构建 prompt
