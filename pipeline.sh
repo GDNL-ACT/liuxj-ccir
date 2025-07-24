@@ -3,7 +3,6 @@ cd /home/liuxj25/LawLLM/CCIR/eval
 
 python pipeline.py \
   --top_k 5 \
-  --process_type rewrite_question \
   --faiss_type FlatIP \
   --retriever_batch_size 32 \
   --generator_batch_size 16 \
@@ -18,7 +17,6 @@ python pipeline.py \
 
 python pipeline.py \
   --top_k 5 \
-  --process_type rewrite_question \
   --faiss_type FlatIP \
   --retriever_batch_size 32 \
   --generator_batch_size 16 \

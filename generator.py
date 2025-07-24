@@ -17,8 +17,10 @@ class PromptBuilder:
                 "4. **精炼高效**：避免冗长、重复或泛泛而谈，直接切入法律核心内容，确保回答直击要点；\n"
                 "5. **不得捏造法律内容**：若参考法条中无直接依据，请明确指出，并可根据一般法律原则谨慎说明，勿虚构或杜撰条款。\n\n"
                 "以下是你可以参考的法条：\n"
-            )
+            ),
+            mode = 'default'
         ):
+        self.mode = mode
         self.system_prompt = system_prompt
 
     def build_messages(self, history, current_question, articles):
@@ -37,17 +39,28 @@ class PromptBuilder:
                 system_content = self.system_prompt
             messages.append({"role": "system", "content": system_content})
 
-
-        for turn in history:
-            question = turn.get("question", "")
-            response = turn.get("response", "")
-            if question:
-                messages.append({"role": "user", "content": question})
-            if response:
-                messages.append({"role": "assistant", "content": response})
+        if self.mode == 'rewrite':
+            history_text = "\n".join(
+                [f"用户：{h['question']}\n助手：{h['response']}" for h in history]
+            )
+            messages.append({
+                "role": "user",
+                "content": f"以下是之前的对话历史：\n{history_text}"
+            })
+        else:
+            for i, turn in enumerate(history):
+                question = turn.get("question", "")
+                response = turn.get("response", "")
+                if question:
+                    messages.append({"role": "user", "content": f"第{i+1}轮提问：{question}"})
+                if response:
+                    messages.append({"role": "assistant", "content": f"第{i+1}轮回复：{response}"})
 
         # 当前问题
-        messages.append({"role": "user", "content": current_question})
+        if self.mode == 'rewrite':
+            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请将该问题改写为脱离上下文也能理解的法律检索问题。"})
+        else:
+            messages.append({"role": "user", "content": current_question})
         return messages
 
 class Generator:
@@ -70,7 +83,7 @@ class Generator:
         )
         self.model.eval()
 
-    def _generate(self, messages_batch):
+    def _generate(self, messages_batch, max_new_tokens=1024):
         prompts = [
             self.tokenizer.apply_chat_template(
                 messages,
@@ -94,7 +107,7 @@ class Generator:
                 attention_mask=inputs["attention_mask"],
                 do_sample=False,
                 eos_token_id=self.tokenizer.eos_token_id,
-                max_new_tokens=2048
+                max_new_tokens=max_new_tokens
             )
 
         decoded_outputs = []

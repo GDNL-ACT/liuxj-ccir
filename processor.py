@@ -9,7 +9,7 @@ from generator import PromptBuilder
 from tqdm import tqdm
 
 class Processor:
-    def __init__(self, process_type: str, batch_size: int = 4, model_path: str = None):
+    def __init__(self, process_type: str, batch_size: int = 4, model_path: str = None, max_history : int = 4):
         self.process_type = process_type
         self.process_methods = {
             "rewrite_question_eval": self._rewrite_question_eval,
@@ -19,18 +19,22 @@ class Processor:
         self.tokenizer = None
         self.model = None
         self.batch_size = batch_size
+        self.max_history = max_history
         self.rewrite_builder = PromptBuilder(
             system_prompt=(
                 "你是一个法律检索系统中的问题重写助手。"
-                "请根据以下多轮对话内容（包括历史和当前问题），将用户的**最后一个问题**改写为一个脱离上下文也能独立理解的法律检索查询。"
+                "请根据以下多轮对话内容（包括历史和当前问题），将用户的**最后一个问题**改写为一个脱离上下文也能独立理解的用于法律检索查询的问题。"
                 "改写要求如下：\n"
                 "1. **保留原问题的法律核心语义**，可以在不改变原意的前提下，适当使用常见或通用的法律术语，以增强表达的专业性；"
                 "2. 不得引入对话中未出现的具体法律概念、事实推测或虚构信息；\n"
                 "3. **清除所有指代词或模糊表述**（如“这个问题”“上述”“他”等），并结合历史对话**补全必要的背景信息**；\n"
-                "4. 若原问题信息不足，应从历史中提取明确信息补全，不得随意扩展；\n"
+                "4. 若原问题信息不足，只能从历史中提取已有事实进行补全，不得猜测或编造任何未提及信息;\n"
                 "5. 改写后的问题必须是**完整、清晰、正式的陈述式问句**，具备良好的独立可读性和法律检索价值；\n"
-                "6. **仅输出改写后的问题文本**，不附加任何解释、说明或前后缀内容。**改写后的问题应尽量简洁、清晰**，尽量在200字以内。"
-            )
+                "6. **仅输出改写后的问题文本**，不附加任何解释、说明或前后缀内容;"
+                "7.**改写后的问题应尽量简洁、清晰**，尽量在150字以内。"
+                "请你根据以上规则，改写用户的**最后一个问题**，使其可以脱离上下文**独立提问**。"
+            ),
+            mode='rewrite'
         )
     
     def run(self, original_data_path: str, output_path: str):
@@ -128,7 +132,7 @@ class Processor:
                 user = turn.get("user", "")
                 history_for_prompt = [
                     {"question": h["user"] , "response": h["assistant"]}
-                    for h in conversation[:turn_idx]
+                    for h in conversation[max(0, turn_idx - self.max_history):turn_idx]
                 ]
 
                 messages = self.rewrite_builder.build_messages(
@@ -164,8 +168,9 @@ class Processor:
                     {"question": h["user"], "response": h["assistant"]}
                     for h in turn.get("history", [])
                 ]
-                turn_index = data["conversation"].index(turn)
+                history = history[-self.max_history:]
 
+                turn_index = data["conversation"].index(turn)
                 rewrite_messages = self.rewrite_builder.build_messages(
                     history,
                     current_question=user_question,
@@ -205,8 +210,8 @@ class Processor:
 
 
 if __name__ == "__main__":
-    processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",batch_size=8)
-    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/dataset1.json", output_path="output/rewritten_queries.json")
+    processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",batch_size=16)
+    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/tmp/dataset1_test.json", output_path="output/rewritten_queries.json")
 
     # processor = Processor("prefix_question")
     # processor.run("../data/qut.json", "output/tmp.jsonl")
