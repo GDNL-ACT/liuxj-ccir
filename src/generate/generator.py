@@ -601,8 +601,8 @@ class LocalGenerator(BaseGenerator):
             # articles = self._get_top_articles(sample["id"], retrieval_data, self.top_n)
 
             # articles = sample['article'] # 使用完全正确的检索结果(只有法条名称)
-            # articles = [f"{k}：{v}" for item in sample['article_context'] for k, v in item.items()]  # 使用完全正确的检索结果(法条名称+内容)
-            articles = [] # 0-shot
+            articles = [f"{k}：{v}" for item in sample['article_context'] for k, v in item.items()]  # 使用完全正确的检索结果(法条名称+内容)
+            # articles = [] # 0-shot
             
             messages = self.prompt_builder.build_messages(
                 sample["history"],
