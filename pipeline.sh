@@ -19,7 +19,7 @@ python pipeline.py \
   --top_k 5 \
   --faiss_type FlatIP \
   --retriever_batch_size 32 \
-  --generator_batch_size 16 \
+  --generator_batch_size 8 \
   --retriever_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B \
   --lora_path /home/liuxj25/LawLLM/CCIR/train/retrieval/checkpoints/finetuned-Qwen3-Embedding8B-36bsz \
   --generator_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-32B \
