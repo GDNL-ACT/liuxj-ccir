@@ -43,7 +43,7 @@ def main(args):
     torch.cuda.empty_cache()
     gc.collect()
 
-    generator = Generator(model_path=args.generator_model_path,)
+    generator = Generator(model_path=args.generator_model_path)
     generator.run(
         input_path=args.retrieval_output_path,
         output_path=args.generation_output_path,

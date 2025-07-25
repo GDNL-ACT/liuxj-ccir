@@ -211,7 +211,7 @@ class Processor:
 
 if __name__ == "__main__":
     processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",batch_size=16)
-    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/tmp/dataset1_test.json", output_path="output/rewritten_queries.json")
+    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/dataset1.json", output_path="output/rewritten_queries.json")
 
     # processor = Processor("prefix_question")
     # processor.run("../data/qut.json", "output/tmp.jsonl")

@@ -66,10 +66,9 @@ class PromptBuilder:
 class Generator:
     def __init__(self,
                  model_path: str,
-                 prompt_builder: PromptBuilder,
-                 max_articles: int = 3):
+                 max_articles: int = 4):
         self.model_path = model_path
-        self.prompt_builder = prompt_builder
+        self.prompt_builder = PromptBuilder()
         self.max_articles = max_articles
 
         self.tokenizer = AutoTokenizer.from_pretrained(

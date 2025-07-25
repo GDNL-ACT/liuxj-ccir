@@ -7,7 +7,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 class PseudoAnswerGenerator:
-    def __init__(self, model_path , max_history : int = 2):
+    def __init__(self, model_path , max_history : int = 4):
         self.prompt_builder = PromptBuilder(
             system_prompt=(
                 "你是一位精通中国法律体系的法律专家，专职为用户提供准确、专业且具有权威性的法律解答。"
