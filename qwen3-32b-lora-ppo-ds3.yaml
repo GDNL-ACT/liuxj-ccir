@@ -1,0 +1,50 @@
+### model
+model_name_or_path: /home/liuxj25/LawLLM/CCIR/models/Qwen3-4B
+enable_thinking: false
+trust_remote_code: true
+
+### method
+stage: ppo
+do train: true
+ppo_score_norm: true
+ref_model: /home/liuxj25/LawLLM/CCIR/models/Qwen3-4B
+reward_model_type: "api"
+reward_model: http://127.0.0.1:8008/reward 
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+deepspeed: ccir/cache/ds_z3_config.json
+
+### dataset
+dataset_dir: data
+dataset: ccir_generation_ppo
+template: qwen3
+cutoff_len: 3072
+overwrite_cache: true
+preprocessing_num_workers: 16
+max_samples: 200000
+
+### output
+output_dir: ccir/models/qwen3-32b/ppo
+logging_steps: 100
+save_steps: 200
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: none
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 1.0e-4
+num_train_epochs: 10.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+resume_from_checkpoint: null
+
+### generate
+max_new_tokens: 1024

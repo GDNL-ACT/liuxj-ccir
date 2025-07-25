@@ -84,9 +84,52 @@ def convert_format_dataset1(input_path, output_path):
             json.dump(output_data, f, ensure_ascii=False, indent=2)
     return output_data
 
+# ppo dataset1
+def convert_format_ppo_dataset1(input_path, output_path):
+    with open(input_path, "r", encoding="utf-8") as f:
+        raw_data = json.load(f)
+
+    output_data = []
+
+    for item in raw_data:
+        turns = item["conversation"]
+        history = []
+
+        for idx, turn in enumerate(turns):
+            system_prompt = BASE_SYSTEM_PROMPT
+            user_q = turn["user"]
+            assistant_a = turn["assistant"]
+
+            article_context = turn.get("article_context", [])
+            if article_context:
+                law_contexts = "\n".join([
+                    f"【法条{i+1}】{title}：{content}"
+                    for i, art in enumerate(article_context)
+                    for title, content in art.items()
+                    if content is not None
+                ])
+                system_prompt += "以下是你可以参考的法条：\n" + law_contexts
+
+            sample = {
+                "instruction": user_q,
+                "input": "",
+                "output": assistant_a,
+                "system": system_prompt,
+                "history": history.copy(),
+                "keywords": turn["keyword"]
+            }
+            output_data.append(sample)
+
+            history.append([user_q, assistant_a])
+
+    with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(output_data, f, ensure_ascii=False, indent=2)
+    return output_data
+
 if __name__ == "__main__":
-    # 示例用法
-    d1 = convert_format_dataset1("/home/liuxj25/LawLLM/CCIR/eval/output/dataset1_rewritten.json", "../data/ccir_generation_multiturn.json")
-    d0 = convert_format_dataset0("/home/liuxj25/LawLLM/CCIR/data/dataset0.json", "../data/ccir_generation_oneturn.json")
-    with open("../data/ccir_generation.json", "w", encoding="utf-8") as f:
-            json.dump(d1+d0, f, ensure_ascii=False, indent=2)
+    ## 示例用法
+    # d1 = convert_format_dataset1("/home/liuxj25/LawLLM/CCIR/eval/output/dataset1_rewritten.json", "../data/ccir_generation_multiturn.json")
+    # d0 = convert_format_dataset0("/home/liuxj25/LawLLM/CCIR/data/dataset0.json", "../data/ccir_generation_oneturn.json")
+    # with open("../data/ccir_generation.json", "w", encoding="utf-8") as f:
+    #         json.dump(d1+d0, f, ensure_ascii=False, indent=2)
+    convert_format_ppo_dataset1("/home/liuxj25/LawLLM/CCIR/eval/output/dataset1_rewritten.json", "../data/ccir_generation_ppo.json")
