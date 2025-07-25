@@ -16,7 +16,7 @@ def convert_corpus_format(input_path: str, output_path: str):
             converted = {
                 "docid": item.get("id"),
                 "title": item.get("name", ""),
-                "text": item.get("name", "") + "：" + item.get("content", "")
+                "text": item.get("content", "")
             }
             fout.write(json.dumps(converted, ensure_ascii=False) + "\n")
 
@@ -36,8 +36,7 @@ def convert_training_data_by_title(train_path, output_path, title2meta):
     missing_counter = defaultdict(int)
 
     def extract_title_from_text(text):
-        # 一般格式为 “《法条名称》第xx条：内容”
-        return (text.split("：")[0])  # 或用 fulltext[:20] 截取法条前缀也行
+        return (text.split("：")[0])
 
     with open(train_path, 'r', encoding='utf-8') as fin, \
          open(output_path, 'w', encoding='utf-8') as fout:
@@ -68,21 +67,21 @@ def convert_training_data_by_title(train_path, output_path, title2meta):
             positives = convert_passages(item.get("pos", []), label="pos")
             negatives = convert_passages(item.get("negs", []), label="neg")
 
-            new_item = {
+            if positives and negatives:
+                new_item = {
                 "query_id": query_id,
                 "query": query,
                 "positive_passages": positives,
                 "negative_passages": negatives
-            }
-
-            fout.write(json.dumps(new_item, ensure_ascii=False) + "\n")
+                }
+                fout.write(json.dumps(new_item, ensure_ascii=False) + "\n")
     
     return missing_counter
 def main():
     raw_corpus = "/home/liuxj25/LawLLM/CCIR/data/law_library.jsonl"
-    corpus_output = "./law_libraty.jsonl"
-    raw_train = "/home/liuxj25/LawLLM/CCIR/train/retrieval/data/data_whn3.jsonl"
-    train_output = "./data_whn3.jsonl"
+    corpus_output = "data/law_libraty.jsonl"
+    raw_train = "/home/liuxj25/LawLLM/CCIR/train/retrieval/data/data2_whn3.jsonl"
+    train_output = "data/data2_whn3.jsonl"
 
     # convert_corpus_format(raw_corpus, corpus_output)
 
