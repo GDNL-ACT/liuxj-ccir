@@ -5,6 +5,7 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from collections import defaultdict
 from tqdm import tqdm
+from generator import PromptBuilder
 
 class PseudoAnswerGenerator:
     def __init__(self, model_path , max_history : int = 4):
