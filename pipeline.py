@@ -14,22 +14,21 @@ logging.basicConfig(
 )
 
 def main(args):
-    pseudoAnswerGenerator = PseudoAnswerGenerator(model_path=args.generator_model_path)
-    pseudoAnswerGenerator.run(data_path=args.raw_data_path, output_path=args.pseudo_output_path,batch_size=args.generator_batch_size)
-    del pseudoAnswerGenerator
-    torch.cuda.empty_cache()
-    gc.collect()
+    # pseudoAnswerGenerator = PseudoAnswerGenerator(model_path=args.generator_model_path)
+    # pseudoAnswerGenerator.run(data_path=args.raw_data_path, output_path=args.pseudo_output_path,batch_size=args.generator_batch_size)
+    # del pseudoAnswerGenerator
+    # gc.collect()
+    # torch.cuda.empty_cache()
 
-    processor_rewrite = Processor("rewrite_question_eval", model_path=args.generator_model_path, batch_size=args.generator_batch_size)
-    processor_rewrite.run(args.pseudo_output_path, args.processor_output_path)
-    del processor_rewrite
-    torch.cuda.empty_cache()
+    # processor_rewrite = Processor("rewrite_question_eval", model_path=args.generator_model_path, batch_size=args.generator_batch_size)
+    # processor_rewrite.run(args.pseudo_output_path, args.processor_output_path)
+    # del processor_rewrite
     gc.collect()
+    torch.cuda.empty_cache()
 
     retriever = Retriever(
         model_path=args.retriever_model_path,
         lora_path=args.lora_path,
-        faiss_type=args.faiss_type,
         batch_size=args.retriever_batch_size,
         index_path=args.retriever_index_path
     )
@@ -40,8 +39,8 @@ def main(args):
         top_k=args.top_k
     )
     del retriever
-    torch.cuda.empty_cache()
     gc.collect()
+    torch.cuda.empty_cache()
 
     generator = Generator(model_path=args.generator_model_path)
     generator.run(
@@ -62,7 +61,6 @@ if __name__ == "__main__":
     parser.add_argument("--retriever_model_path", type=str, default="/home/liuxj25/LawLLM/CCIR/models/gte_Qwen2")
     parser.add_argument("--lora_path", type=str)
     parser.add_argument("--retriever_index_path", type=str)
-    parser.add_argument("--faiss_type", type=str, default="FlatIP")
     parser.add_argument("--retriever_batch_size", type=int, default=32)
     parser.add_argument("--law_path", type=str, default="/home/liuxj25/LawLLM/CCIR/data/law_library.jsonl")
     parser.add_argument("--retrieval_output_path", type=str, default="./output/retmp.json")

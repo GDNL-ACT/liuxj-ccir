@@ -3,13 +3,12 @@ cd /home/liuxj25/LawLLM/CCIR/eval
 
 python pipeline.py \
   --top_k 5 \
-  --faiss_type FlatIP \
-  --retriever_batch_size 32 \
+  --retriever_batch_size 64 \
   --generator_batch_size 16 \
-  --retriever_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B \
+  --retriever_model_path  /home/liuxj25/LawLLM/CCIR/eval/models/20250726_0537 \
   --generator_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-32B \
   --raw_data_path ../data/question_A.json \
-  --law_path ../data/law_library.jsonl \
+  --law_path ../data/tmp/law_test.jsonl \
   --pseudo_output_path ./output/pseudo.jsonl \
   --processor_output_path ./output/queries.json \
   --retrieval_output_path ./output/retrieval.json \
@@ -17,7 +16,6 @@ python pipeline.py \
 
 python pipeline.py \
   --top_k 5 \
-  --faiss_type FlatIP \
   --retriever_batch_size 32 \
   --generator_batch_size 8 \
   --retriever_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B \
