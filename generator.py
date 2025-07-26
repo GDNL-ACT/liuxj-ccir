@@ -39,26 +39,26 @@ class PromptBuilder:
                 system_content = self.system_prompt
             messages.append({"role": "system", "content": system_content})
 
-        if self.mode == 'rewrite':
-            history_text = "\n".join(
-                [f"用户：{h['question']}\n助手：{h['response']}" for h in history]
-            )
-            messages.append({
-                "role": "user",
-                "content": f"以下是之前的对话历史：\n{history_text}"
-            })
-        else:
-            for i, turn in enumerate(history):
-                question = turn.get("question", "")
-                response = turn.get("response", "")
-                if question:
-                    messages.append({"role": "user", "content": f"第{i+1}轮提问：{question}"})
-                if response:
-                    messages.append({"role": "assistant", "content": f"第{i+1}轮回复：{response}"})
+        # if self.mode == 'rewrite':
+        #     history_text = "\n".join(
+        #         [f"用户：{h['question']}\n助手：{h['response']}" for h in history]
+        #     )
+        #     messages.append({
+        #         "role": "user",
+        #         "content": f"以下是之前的对话历史：\n{history_text}"
+        #     })
+        # else:
+        for i, turn in enumerate(history):
+            question = turn.get("question", "")
+            response = turn.get("response", "")
+            if question:
+                messages.append({"role": "user", "content": f"第{i+1}轮提问：{question}"})
+            if response:
+                messages.append({"role": "assistant", "content": f"第{i+1}轮回复：{response}"})
 
         # 当前问题
         if self.mode == 'rewrite':
-            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请将该问题改写为可以脱离上下文的**独立提问**"})
+            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请你根据以上规则和历史对话，将用户的**最后一个问题**改写为一个脱离上下文也能独立理解的用于法律检索查询的问题"})
         else:
             messages.append({"role": "user", "content": current_question})
         return messages
