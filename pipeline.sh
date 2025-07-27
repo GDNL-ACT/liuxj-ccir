@@ -19,7 +19,7 @@ python pipeline.py \
   --retriever_batch_size 64 \
   --generator_batch_size 16 \
   --retriever_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B \
-  --lora_path /home/liuxj25/LawLLM/CCIR/train/retrieval/checkpoints/finetuned-Qwen3-Embedding8B-36bsz \
+  --lora_path /home/liuxj25/LawLLM/CCIR/train/retrieval/checkpoints/Qwen3-Embedding8B-v2 \
   --generator_model_path /home/liuxj25/LawLLM/CCIR/models/Qwen3-32B \
   --raw_data_path ../data/question_A.json \
   --law_path ../data/law_library.jsonl \

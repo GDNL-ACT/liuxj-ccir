@@ -26,21 +26,21 @@ def main(args):
     gc.collect()
     torch.cuda.empty_cache()
 
-    # retriever = Retriever(
-    #     model_path=args.retriever_model_path,
-    #     lora_path=args.lora_path,
-    #     batch_size=args.retriever_batch_size,
-    #     index_path=args.retriever_index_path
-    # )
-    # retriever.run(
-    #     input_path=args.processor_output_path,
-    #     law_path=args.law_path,
-    #     output_path=args.retrieval_output_path,
-    #     top_k=args.top_k
-    # )
-    # del retriever
-    # gc.collect()
-    # torch.cuda.empty_cache()
+    retriever = Retriever(
+        model_path=args.retriever_model_path,
+        lora_path=args.lora_path,
+        batch_size=args.retriever_batch_size,
+        index_path=args.retriever_index_path
+    )
+    retriever.run(
+        input_path=args.processor_output_path,
+        law_path=args.law_path,
+        output_path=args.retrieval_output_path,
+        top_k=args.top_k
+    )
+    del retriever
+    gc.collect()
+    torch.cuda.empty_cache()
 
     # generator = Generator(model_path=args.generator_model_path)
     # generator.run(
