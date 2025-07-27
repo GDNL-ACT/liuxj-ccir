@@ -19,7 +19,6 @@ class Retriever:
                  lora_path: str = None,
                  index_path:str = "output/law_index.faiss"):
         self.model_path = model_path
-        self.lora_path = lora_path
         self.batch_size = batch_size
         self.index_path = index_path
 
@@ -39,11 +38,7 @@ class Retriever:
         else:
             self.model, self.tokenizer = self._load_lora(model_path, lora_path)
     
-    def _load_lora(self, base_path, lora_path, merged_dir_root: str = "models"):
-        now_str = datetime.now().strftime("%Y%m%d_%H%M")
-        merged_dir = os.path.join(merged_dir_root, now_str)
-        os.makedirs(merged_dir, exist_ok=True)
-
+    def _load_lora(self, base_path, lora_path):
         base_model = AutoModel.from_pretrained(
             base_path,
             torch_dtype="auto",              
@@ -52,10 +47,8 @@ class Retriever:
         )
         model = PeftModel.from_pretrained(base_model, lora_path)
         model = model.merge_and_unload()
-        model.save_pretrained(merged_dir)
 
         tokenizer = AutoTokenizer.from_pretrained(base_path, trust_remote_code=True, padding_side="left")
-        tokenizer.save_pretrained(merged_dir)
         model.eval()
         return model, tokenizer
 

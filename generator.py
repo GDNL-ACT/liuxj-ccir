@@ -3,13 +3,14 @@ import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from collections import defaultdict
+from peft import PeftModel
 
 class PromptBuilder:
     def __init__(
             self, 
             system_prompt=(
                 "你是一位精通中国法律体系的法律专家，专职为用户提供准确、专业且具有权威性的法律解答。"
-                "你的任务是根据用户提出的问题，结合下方提供的法条材料，生成简明、直接且法律逻辑清晰的回答,**内容尽量在500字以内**。\n\n"
+                "你的任务是根据用户提出的问题，结合下方提供的法条材料，生成简明、直接且法律逻辑清晰的回答。\n\n"
                 "请务必遵循以下规范：\n"
                 "1. **精准引用法条**：优先从下方参考法条中选取最贴切的一条或几条，作为法律依据进行引用。引用时请注明法条名称与条号，例如：“根据《民法典》第xxx条规定”；\n"
                 "2. **使用法律术语**：请使用通用、规范的法律术语和表达方式，避免使用口语化、模糊或日常化语言（如“应该吧”“大概可能”“常理上”）；\n"
@@ -65,27 +66,45 @@ class PromptBuilder:
 class Generator:
     def __init__(self,
                  model_path: str,
-                 max_articles: int = 3,
-                 max_history : int = 3):
+                 lora_path: str = None,
+                 max_articles: int = 4,
+                 max_history : int = 4):
         self.model_path = model_path
         self.prompt_builder = PromptBuilder()
         self.max_articles = max_articles
         self.max_history = max_history
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
+        if lora_path is None:
+            self.tokenizer = AutoTokenizer.from_pretrained(
                 self.model_path,
                 padding_side='left',  
                 trust_remote_code=True
             )
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_path,
-            torch_dtype="auto",               
-            device_map="auto",                   
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_path,
+                torch_dtype="auto",               
+                device_map="auto",                   
+                trust_remote_code=True
+            )
+            self.model.eval()
+        else:
+            self.model, self.tokenizer = self._load_lora(model_path, lora_path)
+
+    def _load_lora(self, base_path, lora_path):
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_path,
+            torch_dtype="auto",              
+            device_map="auto", 
             trust_remote_code=True
         )
-        self.model.eval()
+        model = PeftModel.from_pretrained(base_model, lora_path)
+        model = model.merge_and_unload()
 
-    def _generate(self, messages_batch, max_new_tokens=1024):
+        tokenizer = AutoTokenizer.from_pretrained(base_path, trust_remote_code=True, padding_side="left")
+        model.eval()
+        return model, tokenizer
+    
+    def _generate(self, messages_batch, max_new_tokens=2048):
         prompts = [
             self.tokenizer.apply_chat_template(
                 messages,
