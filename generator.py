@@ -207,7 +207,6 @@ class Generator:
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(dialog_data, f, ensure_ascii=False, indent=2)
 
-
 if __name__ == "__main__":
     prompt_builder = PromptBuilder()
     generator = Generator(

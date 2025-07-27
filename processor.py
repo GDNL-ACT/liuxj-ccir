@@ -122,7 +122,7 @@ class Processor:
         self._ensure_model_loaded()
         messages_list = []
         message_to_ref = []
-
+        
         for sample_idx, sample in enumerate(data_list):
             conversation = sample.get("conversation", [])
             history = []
@@ -150,7 +150,7 @@ class Processor:
                 sample_idx, turn_idx = message_to_ref[i + j]
                 data_list[sample_idx]["conversation"][turn_idx]["query"] = {
                     "type": "rewrite_question",
-                    "content": rewritten.strip()
+                    "content": f"问题：{rewritten} \n答案：{data_list[sample_idx]['conversation'][turn_idx]['assistant']}"
                 }
 
         return data_list
@@ -210,7 +210,7 @@ class Processor:
 
 if __name__ == "__main__":
     processor = Processor("rewrite_question_train", model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",batch_size=16)
-    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/dataset1.json", output_path="output/rewritten_queries.json")
+    processor.run(original_data_path="/home/liuxj25/LawLLM/CCIR/data/dataset1.json", output_path="dataset1_rewritten.json")
 
     # processor = Processor("prefix_question")
     # processor.run("../data/qut.json", "output/tmp.jsonl")
