@@ -104,7 +104,7 @@ class Generator:
         model.eval()
         return model, tokenizer
     
-    def _generate(self, messages_batch, max_new_tokens=2048):
+    def _generate(self, messages_batch, max_new_tokens=1024):
         prompts = [
             self.tokenizer.apply_chat_template(
                 messages,

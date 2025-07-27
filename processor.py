@@ -33,7 +33,7 @@ class Processor:
                 "6. **仅输出改写后的问题文本**，不附加任何解释、说明或前后缀内容;"
                 "7.**改写后的问题应尽量简洁、清晰**，尽量在200字以内。"
             ),
-            # mode='rewrite'
+            mode='rewrite'
         )
     
     def run(self, original_data_path: str, output_path: str):
@@ -122,7 +122,7 @@ class Processor:
         self._ensure_model_loaded()
         messages_list = []
         message_to_ref = []
-        
+
         for sample_idx, sample in enumerate(data_list):
             conversation = sample.get("conversation", [])
             history = []
@@ -186,7 +186,7 @@ class Processor:
                 data_ref, turn_idx = message_to_turn_ref[i + j]
                 data_ref["conversation"][turn_idx]["query"] = {
                     "type": "rewrite_question",
-                    "content": rewritten.strip()
+                    "content": f"问题：{rewritten} \n答案：{data_ref['conversation'][turn_idx]['pseudo_answer']}"
                 }
      
         return data_list
