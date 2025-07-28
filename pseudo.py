@@ -135,10 +135,9 @@ class PseudoAnswerGenerator:
         self.model.eval()
 
 if __name__ == "__main__":
-    from generator import PromptBuilder
     generator = PseudoAnswerGenerator(model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B")
     generator.run(
-        data_path="/home/liuxj25/LawLLM/CCIR/data/question_A.json", 
-        output_path="output/pseudo_answers.jsonl",
+        data_path="data/dataset1_question.json", 
+        output_path="vllm/dataset1_pseudo.jsonl",
         batch_size = 16
     )

@@ -131,12 +131,11 @@ class Retriever:
                     })
                 conv["recall"] = recalls
                 conv["response"] = ""
-                if "query" in conv:
-                    del conv["query"]
-                if "pseudo_answer" in conv:
-                    del conv["pseudo_answer"]
+                for key in ["query", "pseudo_answer", "id", "turn", "history"]:
+                    conv.pop(key, None)
                 if "user" in conv:
                     conv["question"] = conv.pop("user")
+                
                 query_idx += 1
         return data
 

@@ -58,7 +58,7 @@ class PromptBuilder:
                     messages.append({"role": "assistant", "content": f"{response}"})
 
         if self.mode == 'rewrite':
-            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请你根据以上规则和历史对话，将用户的**最后一个问题**改写为一个脱离上下文也能独立理解的用于法律检索查询的问题"})
+            messages.append({"role": "user", "content": f"当前用户问题：{current_question}\n请你根据以上规则和历史对话，将用户的**最后一个问题**改写为一个脱离上下文也能独立理解的法律检索查询"})
         else:
             messages.append({"role": "user", "content": current_question})
         return messages
