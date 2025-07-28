@@ -123,7 +123,7 @@ class TrainDataset(Dataset):
             formatted_documents = []
             # Select positive document
             selected_positive = group['positive_passages'][(_hashed_seed + epoch) % len(group['positive_passages'])]
-            positive_text = (selected_positive['title'] + ' ' + selected_positive['text']
+            positive_text = (selected_positive['title'] + '：' + selected_positive['text']
                              if 'title' in selected_positive else selected_positive['text'])
             formatted_documents.append((self.data_args.passage_prefix + positive_text, None, None, None))
 

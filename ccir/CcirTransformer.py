@@ -79,11 +79,11 @@ def convert_training_data_by_title(train_path, output_path, title2meta):
     return missing_counter
 def main():
     raw_corpus = "/home/liuxj25/LawLLM/CCIR/data/law_library.jsonl"
-    corpus_output = "data/law_libraty.jsonl"
-    raw_train = "/home/liuxj25/LawLLM/CCIR/train/retrieval/data/data2_whn3.jsonl"
-    train_output = "data/data2_whn3.jsonl"
+    corpus_output = "data/law_library.jsonl"
+    raw_train = "/home/liuxj25/LawLLM/CCIR/train/retrieval/data/v3/data01_whn3.jsonl"
+    train_output = "data/data_whn3.jsonl"
 
-    # convert_corpus_format(raw_corpus, corpus_output)
+    convert_corpus_format(raw_corpus, corpus_output)
 
     text2meta = build_title_index(corpus_output)
 
