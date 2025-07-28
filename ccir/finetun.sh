@@ -27,7 +27,7 @@ deepspeed --include localhost:0,1,2,3 --master_port 51234 --module tevatron.retr
   --query_max_len  1024 \
   --passage_max_len 1024 \
   --num_train_epochs 10 \
-  --save_steps 500 \
-  --logging_steps 100 \
-  --per_device_train_batch_size 8 \
+  --save_steps 250 \
+  --logging_steps 50 \
+  --per_device_train_batch_size 24 \
   --attn_implementation eager
