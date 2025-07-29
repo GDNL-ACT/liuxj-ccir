@@ -62,9 +62,9 @@ def get_rewards_from_server(server_url: str, messages: list[str]) -> list["torch
 
         match_count = sum(1 for kw in keywords if kw in answer)
         reward = match_count / len(keywords)
-        rewards.append(reward)
+        rewards.append(torch.tensor(reward))
 
-    return torch.tensor(rewards)
+    return rewards
 
 
 def replace_model(model: "AutoModelForCausalLMWithValueHead", target: Literal["default", "reward"]) -> None:
