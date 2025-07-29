@@ -67,7 +67,7 @@ class Generator:
     def __init__(self,
                  model_path: str,
                  lora_path: str = None,
-                 max_articles: int = 4,
+                 max_articles: int = 5,
                  max_history : int = 4):
         self.model_path = model_path
         self.prompt_builder = PromptBuilder()
@@ -126,6 +126,10 @@ class Generator:
             outputs = self.model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
+                # do_sample=True,                         
+                # temperature=0.6,
+                # top_p=0.95, 
+                # top_k=20,
                 do_sample=False,
                 eos_token_id=self.tokenizer.eos_token_id,
                 max_new_tokens=max_new_tokens
@@ -208,13 +212,12 @@ class Generator:
             json.dump(dialog_data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    prompt_builder = PromptBuilder()
     generator = Generator(
-        model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-4B",
-        prompt_builder=prompt_builder
+        model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
     )
 
     generator.run(
-        input_path="/home/liuxj25/LawLLM/CCIR/eval/tmp/retrieval.json",
-        output_path="/home/liuxj25/LawLLM/CCIR/eval/tmp/gtmp.json"
+        input_path="/home/liuxj25/LawLLM/CCIR/eval/vllm/output/0.0/A_retrieval(11.48).json",
+        output_path="/home/liuxj25/LawLLM/CCIR/eval/output/gtmp.json",
+        batch_size=8
     )

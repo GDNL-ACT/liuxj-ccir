@@ -3,4 +3,10 @@ output/
 __pycache__/
 .ipynb_checkpoints/
 data/
-vllm/
+vllm/output
+vllm/data
+vllm/time.bash
+vllm/pipeline_vllm-hy.sh
+vllm/pipeline_vllm-lxj.sh
+vllm/post.py
+vllm/reranker.py
