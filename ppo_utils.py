@@ -57,7 +57,7 @@ def get_rewards_from_server(server_url: str, messages: list[str]) -> list["torch
         keywords = query2keywords.get(query, [])
 
         if not keywords:
-            rewards.append(0.5)
+            rewards.append(torch.tensor(0.5))
             continue
 
         match_count = sum(1 for kw in keywords if kw in answer)
