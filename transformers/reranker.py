@@ -14,7 +14,7 @@ max_length = 8192
 
 # === 初始化模型 ===
 tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
-model = AutoModelForCausalLM.from_pretrained(model_name).cuda().eval()
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map = "auto").eval()
 
 token_true_id = tokenizer.convert_tokens_to_ids("yes")
 token_false_id = tokenizer.convert_tokens_to_ids("no")
@@ -40,7 +40,7 @@ def process_inputs(pairs):
     for i in range(len(inputs["input_ids"])):
         inputs["input_ids"][i] = prefix_tokens + inputs["input_ids"][i] + suffix_tokens
     inputs = tokenizer.pad(inputs, padding=True, return_tensors="pt", max_length=max_length)
-    return {k: v.cuda() for k, v in inputs.items()}
+    return {k: v.to(model.device) for k, v in inputs.items()}
 
 # === Logits 得分计算 ===
 @torch.no_grad()

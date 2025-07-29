@@ -218,6 +218,6 @@ if __name__ == "__main__":
 
     generator.run(
         input_path="/home/liuxj25/LawLLM/CCIR/eval/vllm/output/0.0/A_retrieval(11.48).json",
-        output_path="/home/liuxj25/LawLLM/CCIR/eval/output/gtmp.json",
+        output_path="/home/liuxj25/LawLLM/CCIR/eval/gtmp.json",
         batch_size=8
     )

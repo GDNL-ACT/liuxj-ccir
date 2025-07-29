@@ -115,18 +115,6 @@ class RewriterVLLM:
     
 
 if __name__ == "__main__":
-    # processor = ProcessorVLLM(
-    #     model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
-    #     batch_size=128
-    # )
-    # processor.run(
-    #     original_data_path="vllm/dataset1_pseudo.jsonl", 
-    #     output_path="vllm/dataset1_rewritten.json"
-    # )
-    # processor.run(
-    #     original_data_path="vllm/dataset0_pseudo.jsonl", 
-    #     output_path="vllm/dataset0_rewritten.json"
-    # )
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, required=True)

@@ -105,20 +105,7 @@ class PseudoAnswerGeneratorVLLM:
 
         return [output.outputs[0].text.strip() for output in outputs]
 
-
-
 if __name__ == "__main__":
-    # generator = PseudoAnswerGeneratorVLLM(model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B")
-    # generator.run(
-    #     data_path="/home/liuxj25/LawLLM/CCIR/data/question_A.json",
-    #     output_path="vllm/A_pseudo.jsonl",
-    #     batch_size=128
-    # )
-    # generator.run(
-    #     data_path="data/dataset0_question.json",
-    #     output_path="vllm/dataset0_pseudo.jsonl",
-    #     batch_size=128
-    # )
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, required=True)

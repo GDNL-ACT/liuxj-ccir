@@ -60,16 +60,16 @@ def _load_lora_emb(base_path, lora_path, save_path=None):
     return model, tokenizer
 
 if __name__ == "__main__":
-    # 加载聊天模型并保存
-    model, tokenizer = _load_lora_chat(
-        base_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
-        lora_path="/home/liuxj25/LawLLM/CCIR/train/generation/checkpoints/Qwen3-32B-v1",
-        save_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3chat"
-    )
-
-    # # 加载嵌入模型并保存
-    # model, tokenizer = _load_lora_emb(
-    #     base_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B",
-    #     lora_path="/home/liuxj25/LawLLM/CCIR/train/retrieval/checkpoints/finetuned-Qwen3-Embedding8B-36bsz",
-    #     save_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3embedding"
+    # # 加载聊天模型并保存
+    # model, tokenizer = _load_lora_chat(
+    #     base_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
+    #     lora_path="/home/liuxj25/LawLLM/CCIR/train/generation/checkpoints/Qwen3-32B-v1",
+    #     save_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3chat"
     # )
+
+    # 加载嵌入模型并保存
+    model, tokenizer = _load_lora_emb(
+        base_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-embedding-8B",
+        lora_path="/home/liuxj25/LawLLM/CCIR/train/retrieval/checkpoints/Qwen3-Embedding8B-v3",
+        save_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3embedding"
+    )

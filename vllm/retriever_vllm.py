@@ -138,17 +138,6 @@ class Retriever:
         return data
 
 if __name__ == "__main__":
-    # retriever = Retriever(
-    #     model_path = "/home/liuxj25/LawLLM/CCIR/eval/models/20250726_0537",
-    #     batch_size=64
-    # )
-
-    # retriever.run(
-    #     input_path="/home/liuxj25/LawLLM/CCIR/eval/output/queries.json",
-    #     law_path="/home/liuxj25/LawLLM/CCIR/data/law_library.jsonl",
-    #     output_path="/home/liuxj25/LawLLM/CCIR/eval/output/retrieval.json",
-    #     top_k=5
-    # )
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, required=True)
