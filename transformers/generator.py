@@ -69,11 +69,13 @@ class Generator:
                  model_path: str,
                  lora_path: str = None,
                  max_articles: int = 5,
-                 max_history : int = 4):
+                 max_history : int = 4,
+                 think : bool = False):
         self.model_path = model_path
         self.prompt_builder = PromptBuilder()
         self.max_articles = max_articles
         self.max_history = max_history
+        self.enable_thinking = think
 
         if lora_path is None:
             self.tokenizer = AutoTokenizer.from_pretrained(
@@ -112,7 +114,7 @@ class Generator:
                 messages,
                 tokenize=False,
                 add_generation_prompt=True,
-                enable_thinking=False
+                enable_thinking=self.enable_thinking
             )
             for messages in messages_batch
         ]
@@ -227,6 +229,8 @@ if __name__ == "__main__":
     generator = Generator(
         # model_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3chat",
         model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
+        lora_path="",
+        think=False
     )
 
     generator.run(
