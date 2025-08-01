@@ -17,6 +17,7 @@ class PromptBuilder:
                 "3. **保持书面风格一致性**：如前文已有回答，请延续其正式、书面表达风格；如为首次回答，请保持结构清晰、逻辑严谨的正式法律说明文风；\n"
                 "4. **精炼高效**：避免冗长、重复或泛泛而谈，直接切入法律核心内容，确保回答直击要点；\n"
                 "5. **不得捏造法律内容**：若参考法条中无直接依据，请明确指出，并可根据一般法律原则谨慎说明，勿虚构或杜撰条款。\n\n"
+                "6. 回答时注意**先复述当前问题**中的关键内容，提炼法律关键词\n"
                 "以下是你可以参考的法条：\n"
             ),
             mode = 'default'
@@ -82,8 +83,9 @@ class Generator:
             )
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_path,
-                torch_dtype="auto",               
-                device_map="auto",                   
+                torch_dtype=torch.bfloat16,              
+                device_map="auto",
+                attn_implementation="flash_attention_2",
                 trust_remote_code=True
             )
             self.model.eval()
@@ -93,7 +95,7 @@ class Generator:
     def _load_lora(self, base_path, lora_path):
         base_model = AutoModelForCausalLM.from_pretrained(
             base_path,
-            torch_dtype="auto",              
+            torch_dtype=torch.bfloat16,              
             device_map="auto", 
             trust_remote_code=True
         )
@@ -104,7 +106,7 @@ class Generator:
         model.eval()
         return model, tokenizer
     
-    def _generate(self, messages_batch, max_new_tokens=1024):
+    def _generate(self, messages_batch, max_new_tokens=2048):
         prompts = [
             self.tokenizer.apply_chat_template(
                 messages,
@@ -126,19 +128,29 @@ class Generator:
             outputs = self.model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
-                # do_sample=True,                         
-                # temperature=0.6,
-                # top_p=0.95, 
-                # top_k=20,
                 do_sample=False,
+                max_new_tokens=max_new_tokens,
                 eos_token_id=self.tokenizer.eos_token_id,
-                max_new_tokens=max_new_tokens
             )
-
+        
         decoded_outputs = []
         for i, output in enumerate(outputs):
             decoded = self.tokenizer.decode(output[len(inputs["input_ids"][i]):], skip_special_tokens=True)
             decoded_outputs.append(decoded.strip())
+
+        # for i, output in enumerate(outputs):
+        #     input_len = len(inputs["input_ids"][i])
+        #     output_ids = output[input_len:].tolist()  # 只取新生成部分
+
+        #     try:
+        #         index = len(output_ids) - output_ids[::-1].index(151668)
+        #     except ValueError:
+        #         index = 0
+
+        #     thinking_content = self.tokenizer.decode(output_ids[:index], skip_special_tokens=True).strip("\n")
+        #     content = self.tokenizer.decode(output_ids[index:], skip_special_tokens=True).strip("\n")
+
+        #     decoded_outputs.append(content)
 
         return decoded_outputs
     
@@ -213,11 +225,12 @@ class Generator:
 
 if __name__ == "__main__":
     generator = Generator(
+        # model_path="/home/liuxj25/LawLLM/CCIR/eval/models/Qwen3chat",
         model_path="/home/liuxj25/LawLLM/CCIR/models/Qwen3-32B",
     )
 
     generator.run(
-        input_path="/home/liuxj25/LawLLM/CCIR/eval/vllm/output/0.0/A_retrieval(11.48).json",
-        output_path="/home/liuxj25/LawLLM/CCIR/eval/gtmp.json",
+        input_path="/home/liuxj25/LawLLM/CCIR/eval/vllm/output/B/B_retrieval.json",
+        output_path="/home/liuxj25/LawLLM/CCIR/eval/vllm/output/B/B_output_base32trans_2048.json",
         batch_size=8
     )
